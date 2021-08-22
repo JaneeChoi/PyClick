@@ -319,7 +319,7 @@ class RankPrevClickParamContainer(ParamContainer):
                 param.from_json(json_container[rank][rank_prev_click])
 
     def __str__(self):
-        return '\n'.join([' '.join(['{:8s}'.format(item) for item in row]) for row in self._container])
+        return '\n'.join([' '.join([str(item) for item in row]) for row in self._container])
 
     def __repr__(self):
         return str(self)

@@ -7,7 +7,6 @@
 from __future__ import print_function
 
 import sys
-
 import time
 
 from pyclick.click_models.Evaluation import LogLikelihood, Perplexity

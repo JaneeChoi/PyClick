@@ -78,7 +78,7 @@ class DCTR(CTR):
 
 class RCTR(CTR):
     """
-    The rank-based CTR click model (DCTR),
+    The rank-based CTR click model (RCTR),
     where each attractiveness parameter depends on rank.
     """
 

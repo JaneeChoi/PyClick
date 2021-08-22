@@ -3,27 +3,32 @@
 #
 # Full copyright notice can be found in LICENSE.
 #
-import sys
-from pyclick.click_models.task_centric.SearchTask import SearchTask
 
+from __future__ import print_function
+
+import sys
+import time
+
+from pyclick.click_models.task_centric.SearchTask import SearchTask
 from pyclick.click_models.task_centric.TCM import TCM
 from pyclick.utils.Utils import Utils
 from pyclick.utils.YandexRelPredChallengeParser import YandexRelPredChallengeParser
+from pyclick.click_models.Evaluation import LogLikelihood, Perplexity
 
 
 __author__ = 'Ilya Markov, Aleksandr Chuklin'
 
 
 if __name__ == "__main__":
-    print "==============================="
-    print "This is an example of using PyClick for training and testing the TCM click model."
-    print "==============================="
+    print("===============================")
+    print("This is an example of using PyClick for training and testing the TCM click model.")
+    print("===============================")
 
     if len(sys.argv) < 3:
-        print "USAGE: %s <dataset> <sessions_max>" % sys.argv[0]
-        print "\tdataset - the path to the dataset from Yandex Relevance Prediction Challenge"
-        print "\tsessions_max - the maximum number of one-query search sessions to consider"
-        print ""
+        print("USAGE: %s <dataset> <sessions_max>" % sys.argv[0])
+        print("\tdataset - the path to the dataset from Yandex Relevance Prediction Challenge")
+        print("\tsessions_max - the maximum number of one-query search sessions to consider")
+        print("")
         sys.exit(1)
 
     click_model = TCM()
@@ -37,19 +42,37 @@ if __name__ == "__main__":
     train_queries = Utils.get_unique_queries(train_sessions)
     train_tasks = SearchTask.get_search_tasks(train_sessions)
 
-    # test_sessions = Utils.filter_sessions(search_sessions[train_test_split:], train_queries)
-    # test_queries = Utils.get_unique_queries(test_sessions)
-    # test_tasks = SearchTask.get_search_tasks(test_sessions)
+    test_sessions = Utils.filter_sessions(search_sessions[train_test_split:], train_queries)
+    test_queries = Utils.get_unique_queries(test_sessions)
+    test_tasks = SearchTask.get_search_tasks(test_sessions)
 
-    print "-------------------------------"
-    print "Training on %d search tasks (%d search sessions, %d unique queries)." % \
-          (len(train_tasks), len(train_sessions), len(train_queries))
-    print "-------------------------------"
+    print("-------------------------------")
+    print("Training on %d search tasks (%d search sessions, %d unique queries)." % \
+          (len(train_tasks), len(train_sessions), len(train_queries)))
+    print("-------------------------------")
 
     click_model.train(train_tasks)
-    print "\tTrained %s click model:\n%r" % (click_model.__class__.__name__, click_model)
+    print("\tTrained %s click model:\n%r" % (click_model.__class__.__name__, click_model))
 
-    # print "-------------------------------"
-    # print "Testing on %d search sessions (%d unique queries)." % (len(test_sessions), len(test_queries))
-    # print "Repeated URLs:", TaskCentricSearchSession.count_repeated_urls(test_sessions).most_common(5)
-    # print "-------------------------------"
+    #print("-------------------------------")
+    #print("Testing on %d search sessions (%d unique queries)." % (len(test_sessions), len(test_queries)))
+    #print("Repeated URLs:", TaskCentricSearchSession.count_repeated_urls(test_sessions).most_common(5))
+    #print("-------------------------------")
+
+
+    print("-------------------------------")
+    print("Testing on %d search sessions (%d unique queries)." % (len(test_sessions), len(test_queries)))
+    print("-------------------------------")
+
+    loglikelihood = LogLikelihood()
+    perplexity = Perplexity()
+
+    start = time.time()
+    ll_value = loglikelihood.evaluate(click_model, test_sessions)
+    end = time.time()
+    print("\tlog-likelihood: %f; time: %i secs" % (ll_value, end - start))
+
+    start = time.time()
+    perp_value = perplexity.evaluate(click_model, test_sessions)[0]
+    end = time.time()
+    print("\tperplexity: %f; time: %i secs" % (perp_value, end - start))
