@@ -9,7 +9,7 @@ from __future__ import print_function
 import sys
 import time
 
-from pyclick.click_models.Evaluation import LogLikelihood, Perplexity
+from pyclick.click_models.Evaluation import LogLikelihood, Perplexity, PerplexityCond, CTRPrediction, RankingPerformance
 from pyclick.click_models.UBM import UBM
 from pyclick.click_models.DBN import DBN
 from pyclick.click_models.SDBN import SDBN
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     train_sessions = search_sessions[:train_test_split]
     train_queries = Utils.get_unique_queries(train_sessions)
 
-    test_sessions = Utils.filter_sessions(search_sessions[train_test_split:], train_queries)
+    test_sessions = search_sessions[train_test_split:]
     test_queries = Utils.get_unique_queries(test_sessions)
 
     print("===============================")
@@ -66,6 +66,10 @@ if __name__ == "__main__":
 
     loglikelihood = LogLikelihood()
     perplexity = Perplexity()
+    perplexitycond = PerplexityCond()
+    ctrprediction = CTRPrediction()
+    
+
 
     start = time.time()
     ll_value = loglikelihood.evaluate(click_model, test_sessions)
@@ -76,3 +80,8 @@ if __name__ == "__main__":
     perp_value = perplexity.evaluate(click_model, test_sessions)[0]
     end = time.time()
     print("\tperplexity: %f; time: %i secs" % (perp_value, end - start))
+
+    start = time.time()
+    perp_value = perplexitycond.evaluate(click_model, test_sessions)[0]
+    end = time.time()
+    print("\tconditional perplexity: %f; time: %i secs" % (perp_value, end - start))
