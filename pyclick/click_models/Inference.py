@@ -47,7 +47,7 @@ class EMInference(Inference):
         """
         self.iter_num = iter_num
 
-    def infer_params(self, click_model, search_sessions):
+    def infer_params(self, click_model, search_sessions,forget_rate):
         if search_sessions is None or len(search_sessions) == 0:
             return
 
@@ -62,6 +62,6 @@ class EMInference(Inference):
 
                 for rank, result in enumerate(search_session.web_results):
                     for param_name, param in new_session_params[rank].items():
-                        param.update(search_session, rank, current_session_params)
+                        param.update(search_session, rank, current_session_params,forget_rate)
 
             click_model.params = new_click_model.params

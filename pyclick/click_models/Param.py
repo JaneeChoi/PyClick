@@ -92,7 +92,7 @@ class ParamEM(Param):
     def value(self):
         return min(self._numerator / float(self._denominator), 1 - self.PROB_MIN)
 
-    def update(self, search_session, rank, session_params):
+    def update(self, search_session, rank, session_params,forget_rate=0):
         """
         Updates the value of the parameter based on the given search session
         and the values of other parameters.
@@ -104,8 +104,8 @@ class ParamEM(Param):
             (or the default values are used in case this is the first iteration).
         """
         if self._is_update_needed(search_session, rank):
-            self._numerator += self._get_numerator_update(search_session, rank, session_params)
-            self._denominator += self._get_denominator_update(search_session, rank, session_params)
+            self._numerator = self._numerator*(1-forget_rate) + self._get_numerator_update(search_session, rank, session_params)
+            self._denominator = self._denominator*(1-forget_rate)+ self._get_denominator_update(search_session, rank, session_params)
 
     @classmethod
     def _get_numerator_update(cls, search_session, rank, session_params):

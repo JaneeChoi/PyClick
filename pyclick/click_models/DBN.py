@@ -216,9 +216,9 @@ class DBNAttrEM(ParamEM):
     The value of the parameter is inferred using the EM algorithm.
     """
 
-    def update(self, search_session, rank, session_params):
+    def update(self, search_session, rank, session_params, forget_rate):
         if search_session.web_results[rank].click:
-            self._numerator += 1
+            self._numerator = self._numerator*(1-forget_rate)+1
         elif rank >= search_session.get_last_click_rank():
             attr = session_params[rank][DBN.param_names.attr].value()
             exam = session_params[rank][DBN.param_names.exam].value()
@@ -226,9 +226,10 @@ class DBNAttrEM(ParamEM):
 
             num = (1 - exam) * attr
             denom = 1 - exam * car
-            self._numerator += num / denom
+            self._numerator = self._numerator*(1-forget_rate) + num / denom
 
-        self._denominator += 1
+
+        self._denominator = self._denominator*(1-forget_rate)+1
 
 
 class DBNSatEM(ParamEM):
@@ -237,7 +238,7 @@ class DBNSatEM(ParamEM):
     The value of the parameter is inferred using the EM algorithm.
     """
 
-    def update(self, search_session, rank, session_params):
+    def update(self, search_session, rank, session_params, forget_rate):
         if search_session.web_results[rank].click:
             if rank == search_session.get_last_click_rank():
                 sat = session_params[rank][DBN.param_names.sat].value()
@@ -246,9 +247,9 @@ class DBNSatEM(ParamEM):
                     if rank < len(search_session.web_results) - 1 \
                     else 0
 
-                self._numerator += sat / (1 - (1 - sat) * cont * car)
+                self._numerator = self._numerator * (1 - forget_rate) + sat / (1 - (1 - sat) * cont * car)
 
-            self._denominator += 1
+            self._denominator = self._denominator * (1 - forget_rate) + 1
 
 
 class DBNContEM(ParamEM):
@@ -257,10 +258,11 @@ class DBNContEM(ParamEM):
     The value of the parameter is inferred using the EM algorithm.
     """
 
-    def update(self, search_session, rank, session_params):
+    def update(self, search_session, rank, session_params, forget_rate):
         factor = DBN._get_continuation_factor(search_session, rank, session_params)
         # P(E_r = 1, S_r = 0, E_{r+1} = z | C)
         exam_prob = lambda z: factor(1, 0, z) / sum(
                 factor(*p) for p in itertools.product([0, 1], repeat=3))
+
         self._numerator += exam_prob(1)
         self._denominator += sum(exam_prob(x) for x in [0, 1])

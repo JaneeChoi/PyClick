@@ -41,6 +41,7 @@ if __name__ == "__main__":
     click_model = globals()[sys.argv[1]]()
     search_sessions_path = sys.argv[2]
     search_sessions_num = int(sys.argv[3])
+    forget_rate= 0 if len(sys.argv) == 4 else float(sys.argv[4])
 
     search_sessions = YandexRelPredChallengeParser().parse(search_sessions_path, search_sessions_num)
 
@@ -56,7 +57,7 @@ if __name__ == "__main__":
     print("===============================")
 
     start = time.time()
-    click_model.train(train_sessions)
+    click_model.train(train_sessions,forget_rate)
     end = time.time()
     print("\tTrained %s click model in %i secs:\n%r" % (click_model.__class__.__name__, end - start, click_model))
 
@@ -77,11 +78,11 @@ if __name__ == "__main__":
     print("\tlog-likelihood: %f; time: %i secs" % (ll_value, end - start))
 
     start = time.time()
-    perp_value = perplexity.evaluate(click_model, test_sessions)[0]
+    perp_value = perplexity.evaluate(click_model, test_sessions)
     end = time.time()
-    print("\tperplexity: %f; time: %i secs" % (perp_value, end - start))
+    print('\tperplexity: {0}; perplexity@rank: {1};  time: {2} secs'.format(perp_value[0], perp_value[1:], end - start))
 
     start = time.time()
-    perp_value = perplexitycond.evaluate(click_model, test_sessions)[0]
+    perp_value = perplexitycond.evaluate(click_model, test_sessions)
     end = time.time()
-    print("\tconditional perplexity: %f; time: %i secs" % (perp_value, end - start))
+    print('\tperplexity: {0}; perplexity@rank: {1};  time: {2} secs'.format(perp_value[0], perp_value[1:], end - start))

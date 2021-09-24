@@ -59,30 +59,30 @@ class PBMAttrEM(ParamEM):
     The attractiveness parameter of the PBM model.
     The value of the parameter is inferred using the EM algorithm.
     """
-    def update(self, search_session, rank, session_params):
+    def update(self, search_session, rank, session_params, forget_rate=0):
         attr = session_params[rank][PBM.param_names.attr].value()
         exam = session_params[rank][PBM.param_names.exam].value()
 
         if search_session.web_results[rank].click:
-            self._numerator += 1
+            self._numerator = self._numerator*(1-forget_rate) + 1
         else:
-            self._numerator += (1 - exam) * attr / (1 - exam * attr)
+            self._numerator = self._numerator*(1-forget_rate) + (1 - exam) * attr / (1 - exam * attr)
 
-        self._denominator += 1
+        self._denominator = self._denominator*(1-forget_rate) + 1
 
 
 class PBMExamEM(ParamEM):
     """
     The examination parameter of the PBM model
     """
-    def update(self, search_session, rank, session_params):
+    def update(self, search_session, rank, session_params, forget_rate=0):
         attr = session_params[rank][PBM.param_names.attr].value()
         exam = session_params[rank][PBM.param_names.exam].value()
 
         if search_session.web_results[rank].click:
-            self._numerator += 1
+            self._numerator = self._numerator*(1-forget_rate) + 1
         else:
-            self._numerator += (1 - attr) * exam / (1 - exam * attr)
+            self._numerator = self._numerator*(1-forget_rate) + (1 - attr) * exam / (1 - exam * attr)
 
-        self._denominator += 1
+        self._denominator = self._denominator*(1-forget_rate) + 1
 
