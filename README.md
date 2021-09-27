@@ -36,7 +36,7 @@ Data samples are in ```examples/data```.
 Examples can be run as follows:
 
 ```
-python examples/SimpleExample.py $CLICK_MODEL examples/data/YandexRelPredChallenge $SESSION_NUM
+python examples/Example.py $CLICK_MODEL examples/data/YandexRelPredChallenge $SESSION_NUM
 ```
 
 Here, ```$CLICK_MODEL``` is the click model to use for this example (see the list of implemented models below);
