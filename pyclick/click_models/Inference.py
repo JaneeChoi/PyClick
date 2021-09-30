@@ -21,7 +21,7 @@ class Inference(object):
 class MLEInference(Inference):
     """The maximum likelihood estimation (MLE) approach to parameter inference."""
 
-    def infer_params(self, click_model, search_sessions):
+    def infer_params(self, click_model, search_sessions,forget_rate):
         if search_sessions is None or len(search_sessions) == 0:
             return
 
