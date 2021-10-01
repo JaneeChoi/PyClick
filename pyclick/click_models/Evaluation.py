@@ -252,9 +252,9 @@ class RankingPerformance(Evaluation):
                 sessions_dict[session.query].append(session)
         return sessions_dict
 
-    def evaluate(self, click_model, search_sessions):
+    def evaluate(self, click_model, search_sessions, at_rank):
         """
-            Return the NDCG_5 of the rankings given by the model for the given sessions.
+            Return the NDCG_at_rank of the rankings given by the model for the given sessions.
         """
 
         # Only use queries that occur more than MINUMUM_OCCURENCES times and have a true relevance
@@ -270,7 +270,7 @@ class RankingPerformance(Evaluation):
         for query_id in useful_sessions:
             
             rel = self.relevances[query_id]
-            ideal_ranking = sorted(rel.values(),reverse = True)[:5]
+            ideal_ranking = sorted(rel.values(),reverse = True)[:at_rank]
             
             # Only use query if there is a document with a positive ranking. (Otherwise IDCG will be 0 -> NDCG undetermined.)
             if not any(ideal_ranking):
@@ -285,7 +285,7 @@ class RankingPerformance(Evaluation):
                         pred_rels[result.id] = click_model.predict_relevance(session.query, result.id)
             ranking = sorted([doc for doc in pred_rels],key = lambda doc : pred_rels[doc], reverse = True)
             
-            ranking_relevances = self.get_relevances(query_id, ranking[:5])
+            ranking_relevances = self.get_relevances(query_id, ranking[:at_rank])
             
             dcg = self.dcg(ranking_relevances)
             idcg = self.dcg(ideal_ranking)            

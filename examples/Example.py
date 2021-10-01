@@ -35,13 +35,23 @@ if __name__ == "__main__":
         print("\tclick_model - the name of a click model to use.")
         print("\tdataset - the path to the dataset from Yandex Relevance Prediction Challenge")
         print("\tsessions_max - the maximum number of one-query search sessions to consider")
+        print("\tanswerset - the path to the answer dataset for true relevance value")
+        print("\toptional: forgetting rate - forgetting rate for EM algorithm")
         print("")
         sys.exit(1)
 
     click_model = globals()[sys.argv[1]]()
     search_sessions_path = sys.argv[2]
     search_sessions_num = int(sys.argv[3])
-    forget_rate= 0 if len(sys.argv) == 4 else float(sys.argv[4])
+    true_relevance_path = sys.argv[4]
+    forget_rate= 0 if len(sys.argv) == 5 else float(sys.argv[5])
+
+    true_rel = {}
+    with open(true_relevance_path) as f:
+        for line in f:
+            (querykey , urlkey, val) = line.split("\t")
+            true_rel[querykey]={}
+            true_rel[querykey][urlkey]=int(val)
 
     search_sessions = YandexRelPredChallengeParser().parse(search_sessions_path, search_sessions_num)
 
@@ -85,4 +95,15 @@ if __name__ == "__main__":
     start = time.time()
     perp_value = perplexitycond.evaluate(click_model, test_sessions)
     end = time.time()
-    print('\tperplexity: {0}; perplexity@rank: {1};  time: {2} secs'.format(perp_value[0], perp_value[1:], end - start))
+    print('\tcl perplexity: {0}; perplexity@rank: {1};  time: {2} secs'.format(perp_value[0], perp_value[1:], end - start))
+
+    start = time.time()
+    rank = RankingPerformance(true_rel)
+    ndcg_1 = rank.evaluate(click_model, test_sessions,1)
+    ndcg_2 = rank.evaluate(click_model, test_sessions, 2)
+    ndcg_5 = rank.evaluate(click_model, test_sessions, 5)
+    ndcg_10 = rank.evaluate(click_model, test_sessions, 10)
+    end = time.time()
+    print('\tndcg@1: {0}; ndcg@2: {1}; ndcg@5: {2}; ndcg@10: {3}; time: {4} secs'.format(ndcg_1, ndcg_2, ndcg_5, ndcg_10, end - start))
+
+
