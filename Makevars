@@ -1,0 +1,5 @@
+VER=11  # set the version of brew gcc. (as of today: 11)
+CC=gcc-11 -fopenmp   # brew gcc nicely creates gcc-9 as symlink 
+CXX=g++-11 -fopenmp
+CFLAGS=-g -O3 -Wall -pedantic -std=gnu99 -mtune=native -pipe
+CXXFLAGS=-g -O3 -Wall -pedantic -std=c++11 -mtune=native -pipe

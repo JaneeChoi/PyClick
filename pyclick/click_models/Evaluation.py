@@ -279,10 +279,17 @@ class RankingPerformance(Evaluation):
             
             current_sessions = sessions_dict[query_id]
             pred_rels = dict()
+
             for session in current_sessions:
+                exam_tmp = 1
                 for rank, result in enumerate(session.web_results):
+                    attr_tmp = click_model.predict_attr(session.query, result.id)
+                    sat_tmp = click_model.predict_sat(session.query, result.id)
+                    cont_tmp = click_model.predict_cont(session.query, result.id)
+                    exam_tmp *= cont_tmp * ((1 - sat_tmp) * attr_tmp + (1 - attr_tmp))
                     if not result.id in pred_rels:
-                        pred_rels[result.id] = click_model.predict_relevance(session.query, result.id)
+                        pred_rels[result.id] = click_model.predict_relevance(session.query, result.id, rank, exam_tmp)
+
             ranking = sorted([doc for doc in pred_rels],key = lambda doc : pred_rels[doc], reverse = True)
             
             ranking_relevances = self.get_relevances(query_id, ranking[:at_rank])

@@ -82,10 +82,19 @@ class DBN(ClickModel):
         session_params = self.get_session_params(search_session)
         return self._get_tail_clicks(search_session, 0, session_params)[0]
 
-    def predict_relevance(self, query, search_result):
+    def predict_attr(self, query, search_result):
+        return self.params[self.param_names.attr].get(query, search_result).value()
+
+    def predict_sat(self, query, search_result):
+        return self.params[self.param_names.sat].get(query, search_result).value()
+
+    def predict_cont(self, query, search_result):
+        return self.params[self.param_names.cont].get().value()
+
+    def predict_relevance(self, query, search_result, rank, exam):
         attr = self.params[self.param_names.attr].get(query, search_result).value()
         sat = self.params[self.param_names.sat].get(query, search_result).value()
-        return attr * sat
+        return attr * exam * sat
 
     def _get_session_exam(self, search_session, session_params):
         """

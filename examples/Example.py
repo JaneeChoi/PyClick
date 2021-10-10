@@ -100,10 +100,10 @@ if __name__ == "__main__":
     start = time.time()
     rank = RankingPerformance(true_rel)
     ndcg_1 = rank.evaluate(click_model, test_sessions,1)
-    ndcg_2 = rank.evaluate(click_model, test_sessions, 2)
+    ndcg_3 = rank.evaluate(click_model, test_sessions, 3)
     ndcg_5 = rank.evaluate(click_model, test_sessions, 5)
     ndcg_10 = rank.evaluate(click_model, test_sessions, 10)
     end = time.time()
-    print('\tndcg@1: {0}; ndcg@2: {1}; ndcg@5: {2}; ndcg@10: {3}; time: {4} secs'.format(ndcg_1, ndcg_2, ndcg_5, ndcg_10, end - start))
+    print('\tndcg@1: {0}; ndcg@3: {1}; ndcg@5: {2}; ndcg@10: {3}; time: {4} secs'.format(ndcg_1, ndcg_3, ndcg_5, ndcg_10, end - start))
 
 
