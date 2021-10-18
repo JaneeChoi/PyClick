@@ -35,7 +35,8 @@ if __name__ == "__main__":
         print("\tclick_model - the name of a click model to use.")
         print("\tdataset - the path to the dataset from Yandex Relevance Prediction Challenge")
         print("\tsessions_max - the maximum number of one-query search sessions to consider")
-        print("\tanswerset - the path to the answer dataset for true relevance value")
+        print("\toptional: answerSet - the path to the answer dataset for true relevance value")
+        print("\toptional: Relevance Parameter - A, AE, AS or AES")
         print("\toptional: forgetting rate - forgetting rate for EM algorithm")
         print("")
         sys.exit(1)
@@ -43,8 +44,10 @@ if __name__ == "__main__":
     click_model = globals()[sys.argv[1]]()
     search_sessions_path = sys.argv[2]
     search_sessions_num = int(sys.argv[3])
-    true_relevance_path = sys.argv[4]
-    forget_rate= 0 if len(sys.argv) == 5 else float(sys.argv[5])
+    true_relevance_path = "0" if len(sys.argv) < 5 else sys.argv[4]
+    rel_type = "A" if len(sys.argv) < 6 else sys.argv[5]
+    forget_rate= 0 if len(sys.argv) == 6 else float(sys.argv[6])
+
 
     true_rel = {}
     with open(true_relevance_path) as f:
@@ -97,13 +100,17 @@ if __name__ == "__main__":
     end = time.time()
     print('\tcl perplexity: {0}; perplexity@rank: {1};  time: {2} secs'.format(perp_value[0], perp_value[1:], end - start))
 
-    start = time.time()
-    rank = RankingPerformance(true_rel)
-    ndcg_1 = rank.evaluate(click_model, test_sessions,1)
-    ndcg_3 = rank.evaluate(click_model, test_sessions, 3)
-    ndcg_5 = rank.evaluate(click_model, test_sessions, 5)
-    ndcg_10 = rank.evaluate(click_model, test_sessions, 10)
-    end = time.time()
-    print('\tndcg@1: {0}; ndcg@3: {1}; ndcg@5: {2}; ndcg@10: {3}; time: {4} secs'.format(ndcg_1, ndcg_3, ndcg_5, ndcg_10, end - start))
+    if len(sys.argv) >= 5:
+        start = time.time()
+        rank = RankingPerformance(true_rel)
+        ndcg_1 = rank.evaluate(click_model, test_sessions, 1, rel_type)
+        ndcg_3 = rank.evaluate(click_model, test_sessions, 3, rel_type)
+        ndcg_5 = rank.evaluate(click_model, test_sessions, 5, rel_type)
+        ndcg_10 = rank.evaluate(click_model, test_sessions, 10, rel_type)
+        end = time.time()
+        print('\tndcg@1: {0}; ndcg@3: {1}; ndcg@5: {2}; ndcg@10: {3}; time: {4} secs'.format(ndcg_1, ndcg_3, ndcg_5,
+                                                                                             ndcg_10, end - start))
+
+
 
 

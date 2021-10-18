@@ -83,7 +83,7 @@ class SDBN(ClickModel):
     def predict_relevance(self, query, search_result, rank, exam):
         attr = self.params[self.param_names.attr].get(query, search_result).value()
         sat = self.params[self.param_names.sat].get(query, search_result).value()
-        return attr * exam
+        return attr * sat * exam
 
 
 class SDBNAttrMLE(ParamMLE):

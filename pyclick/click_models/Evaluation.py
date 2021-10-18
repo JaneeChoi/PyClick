@@ -252,7 +252,7 @@ class RankingPerformance(Evaluation):
                 sessions_dict[session.query].append(session)
         return sessions_dict
 
-    def evaluate(self, click_model, search_sessions, at_rank):
+    def evaluate(self, click_model, search_sessions, at_rank, rel_type):
         """
             Return the NDCG_at_rank of the rankings given by the model for the given sessions.
         """
@@ -280,15 +280,35 @@ class RankingPerformance(Evaluation):
             current_sessions = sessions_dict[query_id]
             pred_rels = dict()
 
-            for session in current_sessions:
-                exam_tmp = 1
-                for rank, result in enumerate(session.web_results):
-                    attr_tmp = click_model.predict_attr(session.query, result.id)
-                    sat_tmp = click_model.predict_sat(session.query, result.id)
-                    cont_tmp = click_model.predict_cont(session.query, result.id)
-                    exam_tmp *= cont_tmp * ((1 - sat_tmp) * attr_tmp + (1 - attr_tmp))
-                    if not result.id in pred_rels:
-                        pred_rels[result.id] = click_model.predict_relevance(session.query, result.id, rank, exam_tmp)
+            if rel_type == "A":
+                for session in current_sessions:
+                    for rank, result in enumerate(session.web_results):
+                        if not result.id in pred_rels:
+                            pred_rels[result.id] = click_model.predict_attr(session.query, result.id)
+
+            elif rel_type == "AE":
+                for session in current_sessions:
+                    for rank, result in enumerate(session.web_results):
+                        if not result.id in pred_rels:
+                            pred_rels[result.id] = click_model.predict_relevance(session.query, result.id, rank)
+
+            elif rel_type == "AS":
+                for session in current_sessions:
+                    for rank, result in enumerate(session.web_results):
+                        if not result.id in pred_rels:
+                            pred_rels[result.id] = click_model.predict_relevance(session.query, result.id, rank, 1)
+
+            elif rel_type == "AES":
+                for session in current_sessions:
+                    exam_tmp = 1
+                    for rank, result in enumerate(session.web_results):
+                        attr_tmp = click_model.predict_attr(session.query, result.id)
+                        sat_tmp = click_model.predict_sat(session.query, result.id)
+                        cont_tmp = click_model.predict_cont(session.query, result.id)
+                        exam_tmp *= cont_tmp * ((1 - sat_tmp) * attr_tmp + (1 - attr_tmp))
+                        if not result.id in pred_rels:
+                            pred_rels[result.id] = click_model.predict_relevance(session.query, result.id, rank, exam_tmp)
+
 
             ranking = sorted([doc for doc in pred_rels],key = lambda doc : pred_rels[doc], reverse = True)
             

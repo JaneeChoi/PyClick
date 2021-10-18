@@ -112,7 +112,7 @@ class ClickModel(object):
         pass
 
     @abstractmethod
-    def predict_relevance(self, query, search_result):
+    def predict_relevance(self, query, search_result, rank, exam):
         """
         Predicts the relevance of a given search result to a given query.
 

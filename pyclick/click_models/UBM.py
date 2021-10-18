@@ -75,6 +75,9 @@ class UBM(ClickModel):
 
         return click_probs
 
+    def predict_attr(self, query, search_result):
+        return self.params[self.param_names.attr].get(query, search_result).value()
+
     def predict_relevance(self, query, search_result, rank):
         attr = self.params[self.param_names.attr].get(query, search_result).value()
         exam = self.params[self.param_names.exam].get(rank,rank-1).value()
